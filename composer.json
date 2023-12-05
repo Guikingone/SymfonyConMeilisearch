@@ -18,6 +18,8 @@
         "doctrine/doctrine-migrations-bundle": "^3.3",
         "doctrine/orm": "^2.16",
         "league/commonmark": "^2.1",
+        "meilisearch/search-bundle": "^0.13.1",
+        "nyholm/psr7": "^1.8",
         "symfony/apache-pack": "^1.0",
         "symfony/asset": "6.4.*",
         "symfony/console": "6.4.*",
@@ -65,7 +67,8 @@
         "allow-plugins": {
             "symfony/flex": true,
             "symfony/runtime": true,
-            "phpstan/extension-installer": true
+            "phpstan/extension-installer": true,
+            "php-http/discovery": true
         },
         "platform": {
             "php": "8.1.0"

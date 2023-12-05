@@ -16,6 +16,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -41,28 +42,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER)]
+    #[Groups('searchable')]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::STRING)]
     #[Assert\NotBlank]
+    #[Groups('searchable')]
     private ?string $fullName = null;
 
     #[ORM\Column(type: Types::STRING, unique: true)]
     #[Assert\NotBlank]
     #[Assert\Length(min: 2, max: 50)]
+    #[Groups('searchable')]
     private ?string $username = null;
 
     #[ORM\Column(type: Types::STRING, unique: true)]
     #[Assert\Email]
+    #[Groups('searchable')]
     private ?string $email = null;
 
     #[ORM\Column(type: Types::STRING)]
+    #[Groups('searchable')]
     private ?string $password = null;
 
     /**
      * @var string[]
      */
     #[ORM\Column(type: Types::JSON)]
+    #[Groups('searchable')]
     private array $roles = [];
 
     public function getId(): ?int

@@ -14,9 +14,9 @@ namespace App\Controller\Admin;
 use App\Entity\Post;
 use App\Entity\User;
 use App\Form\PostType;
-use App\Repository\PostRepository;
 use App\Security\PostVoter;
 use Doctrine\ORM\EntityManagerInterface;
+use Meilisearch\Bundle\SearchService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\SubmitButton;
@@ -56,9 +56,14 @@ final class BlogController extends AbstractController
     #[Route('/', name: 'admin_post_index', methods: ['GET'])]
     public function index(
         #[CurrentUser] User $user,
-        PostRepository $posts,
+        SearchService $searchService,
+        EntityManagerInterface $entityManager,
     ): Response {
-        $authorPosts = $posts->findBy(['author' => $user], ['publishedAt' => 'DESC']);
+        $authorPosts = $searchService->search($entityManager, Post::class, $user->getFullName(), [
+            'filter' => sprintf('author.fullName = "%s"', $user->getFullName()),
+        ]);
+
+        uasort($authorPosts, static fn (Post $a, Post $b) => $b->getPublishedAt() <=> $a->getPublishedAt());
 
         return $this->render('admin/blog/index.html.twig', ['posts' => $authorPosts]);
     }
@@ -119,8 +124,17 @@ final class BlogController extends AbstractController
      * Finds and displays a Post entity.
      */
     #[Route('/{id<\d+>}', name: 'admin_post_show', methods: ['GET'])]
-    public function show(Post $post): Response
-    {
+    public function show(
+        int $id,
+        SearchService $searchService,
+        EntityManagerInterface $entityManager
+    ): Response {
+        $posts = $searchService->search($entityManager, Post::class, $id, [
+            'filter' => sprintf('id = %d', $id),
+        ]);
+
+        $post = reset($posts);
+
         // This security check can also be performed
         // using a PHP attribute: #[IsGranted('show', subject: 'post', message: 'Posts can only be shown to their authors.')]
         $this->denyAccessUnlessGranted(PostVoter::SHOW, $post, 'Posts can only be shown to their authors.');

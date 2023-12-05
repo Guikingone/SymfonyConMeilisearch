@@ -17,6 +17,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\Ignore;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -39,30 +41,37 @@ class Post
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER)]
+    #[Groups('searchable')]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::STRING)]
     #[Assert\NotBlank]
+    #[Groups('searchable')]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::STRING)]
+    #[Groups('searchable')]
     private ?string $slug = null;
 
     #[ORM\Column(type: Types::STRING)]
     #[Assert\NotBlank(message: 'post.blank_summary')]
     #[Assert\Length(max: 255)]
+    #[Groups('searchable')]
     private ?string $summary = null;
 
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank(message: 'post.blank_content')]
     #[Assert\Length(min: 10, minMessage: 'post.too_short_content')]
+    #[Groups('searchable')]
     private ?string $content = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Groups('searchable')]
     private \DateTime $publishedAt;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups('searchable')]
     private ?User $author = null;
 
     /**
@@ -70,6 +79,7 @@ class Post
      */
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'post', orphanRemoval: true, cascade: ['persist'])]
     #[ORM\OrderBy(['publishedAt' => 'DESC'])]
+    #[Groups('searchable')]
     private Collection $comments;
 
     /**
@@ -79,6 +89,7 @@ class Post
     #[ORM\JoinTable(name: 'symfony_demo_post_tag')]
     #[ORM\OrderBy(['name' => 'ASC'])]
     #[Assert\Count(max: 4, maxMessage: 'post.too_many_tags')]
+    #[Groups('searchable')]
     private Collection $tags;
 
     public function __construct()
